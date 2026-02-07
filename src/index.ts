@@ -12,6 +12,7 @@ type Bindings = {
   DB: D1Database;
   TURNSTILE_SECRET_KEY: string;
   TURNSTILE_SITE_KEY: string;
+  ASSETS: Fetcher;
 };
 
 type Variables = {
@@ -419,6 +420,33 @@ app.get("/oauth/userinfo", async (c) => {
     username: user.username,
     email: user.email,
     display_name: user.displayName
+  });
+});
+
+// Static file serving - delegate to Cloudflare Assets
+app.get("/:filename{.+\\.(md|MD)$}", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
+
+app.get("/LICENSE", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
+
+// Docs endpoint - serve static docs.html
+app.get("/docs", async (c) => {
+  const url = new URL(c.req.url);
+  url.pathname = "/docs.html";
+  return c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
+});
+
+// 404 handler - serve static 404.html
+app.notFound(async (c) => {
+  const url = new URL(c.req.url);
+  url.pathname = "/404.html";
+  const response = await c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
+  return new Response(response.body, {
+    status: 404,
+    headers: response.headers
   });
 });
 
