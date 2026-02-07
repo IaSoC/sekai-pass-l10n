@@ -3,6 +3,7 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { initializeLucia } from "./lib/auth";
 import { hashPassword, verifyPassword, generateId } from "./lib/password";
 import { decryptPassword, validateRequest } from "./lib/decrypt";
+import { verifyPKCE, validateCodeChallenge, validateCodeVerifier } from "./lib/pkce";
 import * as html from "./lib/html";
 
 type Bindings = {
@@ -206,9 +207,16 @@ app.get("/oauth/authorize", async (c) => {
   const clientId = c.req.query("client_id");
   const redirectUri = c.req.query("redirect_uri");
   const responseType = c.req.query("response_type");
+  const codeChallenge = c.req.query("code_challenge");
+  const codeChallengeMethod = c.req.query("code_challenge_method") || "S256";
 
   if (!clientId || !redirectUri || responseType !== "code") {
     return c.text("Invalid request", 400);
+  }
+
+  // Validate PKCE parameters if provided
+  if (codeChallenge && !validateCodeChallenge(codeChallenge, codeChallengeMethod)) {
+    return c.text("Invalid code_challenge", 400);
   }
 
   const app = await c.env.DB.prepare(
@@ -224,8 +232,15 @@ app.get("/oauth/authorize", async (c) => {
     return c.text("Invalid redirect URI", 400);
   }
 
+  // Store PKCE parameters in form (will be used in POST handler)
   return c.html(html.authorizePage(
-    { name: app.name, client_id: clientId, redirect_uri: redirectUri },
+    {
+      name: app.name,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod
+    },
     user
   ));
 });
@@ -242,6 +257,8 @@ app.post("/oauth/authorize", async (c) => {
   const action = formData.get("action")?.toString();
   const clientId = formData.get("client_id")?.toString();
   const redirectUri = formData.get("redirect_uri")?.toString();
+  const codeChallenge = formData.get("code_challenge")?.toString();
+  const codeChallengeMethod = formData.get("code_challenge_method")?.toString() || "S256";
 
   if (action === "deny") {
     return c.redirect(`${redirectUri}?error=access_denied`);
@@ -254,9 +271,10 @@ app.post("/oauth/authorize", async (c) => {
   const code = generateId(32);
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
+  // Store authorization code with PKCE challenge
   await c.env.DB.prepare(
-    "INSERT INTO auth_codes (code, user_id, client_id, redirect_uri, expires_at) VALUES (?, ?, ?, ?, ?)"
-  ).bind(code, user.id, clientId, redirectUri, expiresAt).run();
+    "INSERT INTO auth_codes (code, user_id, client_id, redirect_uri, expires_at, code_challenge, code_challenge_method) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).bind(code, user.id, clientId, redirectUri, expiresAt, codeChallenge, codeChallengeMethod).run();
 
   return c.redirect(`${redirectUri}?code=${code}`);
 });
@@ -268,19 +286,22 @@ app.post("/oauth/token", async (c) => {
   const code = formData.get("code")?.toString();
   const clientId = formData.get("client_id")?.toString();
   const clientSecret = formData.get("client_secret")?.toString();
+  const codeVerifier = formData.get("code_verifier")?.toString();
 
-  if (grantType !== "authorization_code" || !code || !clientId || !clientSecret) {
+  if (grantType !== "authorization_code" || !code || !clientId) {
     return c.json({ error: "invalid_request" }, 400);
   }
 
+  // 查找应用
   const app = await c.env.DB.prepare(
-    "SELECT * FROM applications WHERE client_id = ? AND client_secret = ?"
-  ).bind(clientId, clientSecret).first();
+    "SELECT * FROM applications WHERE client_id = ?"
+  ).bind(clientId).first();
 
   if (!app) {
     return c.json({ error: "invalid_client" }, 401);
   }
 
+  // 获取授权码
   const authCode = await c.env.DB.prepare(
     "SELECT * FROM auth_codes WHERE code = ? AND client_id = ?"
   ).bind(code, clientId).first();
@@ -289,8 +310,39 @@ app.post("/oauth/token", async (c) => {
     return c.json({ error: "invalid_grant" }, 400);
   }
 
+  // PKCE 验证
+  const codeChallenge = authCode.code_challenge as string | null;
+  const codeChallengeMethod = authCode.code_challenge_method as string | null;
+
+  if (codeChallenge) {
+    // 如果有 code_challenge，必须提供 code_verifier
+    if (!codeVerifier) {
+      return c.json({ error: "invalid_request", error_description: "code_verifier required" }, 400);
+    }
+
+    // 验证 code_verifier 格式
+    if (!validateCodeVerifier(codeVerifier)) {
+      return c.json({ error: "invalid_request", error_description: "invalid code_verifier" }, 400);
+    }
+
+    // 验证 PKCE
+    const isValid = await verifyPKCE(codeVerifier, codeChallenge, codeChallengeMethod || "S256");
+    if (!isValid) {
+      return c.json({ error: "invalid_grant", error_description: "code_verifier mismatch" }, 400);
+    }
+  } else {
+    // 没有 PKCE，检查 client_secret（传统方式）
+    const isPublicClient = !app.client_secret || app.client_secret === "public";
+
+    if (!isPublicClient && app.client_secret !== clientSecret) {
+      return c.json({ error: "invalid_client" }, 401);
+    }
+  }
+
+  // 删除已使用的授权码
   await c.env.DB.prepare("DELETE FROM auth_codes WHERE code = ?").bind(code).run();
 
+  // 创建会话
   const lucia = initializeLucia(c.env.DB);
   const session = await lucia.createSession(authCode.user_id as string, {});
 

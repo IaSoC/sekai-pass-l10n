@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEKAI Pass PKCE 集成示例</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #10b981;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .user-info {
+      background: #f5f5f5;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .user-info h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .user-info p {
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .user-info strong {
+      color: #333;
+    }
+
+    .logout-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+
+    .error {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .info-box h3 {
+      color: #0066cc;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .info-box code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      SEKAI Pass PKCE 集成
+      <span class="badge">🔒 安全</span>
+    </h1>
+    <p class="subtitle">使用 PKCE 流程，无需后端，完全安全</p>
+
+    <!-- 未登录状态 -->
+    <div id="login-section">
+      <button class="login-btn" onclick="loginWithPKCE()">
+        使用 SEKAI Pass 登录 (PKCE)
+      </button>
+
+      <div class="info-box">
+        <h3>✨ PKCE 优势</h3>
+        <p>• 不需要 <code>client_secret</code></p>
+        <p>• 防止授权码拦截攻击</p>
+        <p>• 适合纯前端应用</p>
+        <p>• OAuth 2.1 官方推荐</p>
+      </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div id="loading-section" class="hidden">
+      <div class="loading">正在验证身份...</div>
+    </div>
+
+    <!-- 已登录状态 -->
+    <div id="user-section" class="hidden">
+      <div class="user-info">
+        <h2>✅ 登录成功</h2>
+        <p><strong>用户名:</strong> <span id="username"></span></p>
+        <p><strong>邮箱:</strong> <span id="email"></span></p>
+        <p><strong>昵称:</strong> <span id="display-name"></span></p>
+        <p><strong>用户 ID:</strong> <span id="user-id"></span></p>
+        <button class="logout-btn" onclick="logout()">退出登录</button>
+      </div>
+    </div>
+
+    <!-- 错误信息 -->
+    <div id="error-section" class="hidden">
+      <div class="error" id="error-message"></div>
+    </div>
+  </div>
+
+  <script>
+    // 配置
+    const SEKAI_PASS_URL = 'https://id.nightcord.de5.net';
+    const CLIENT_ID = 'pkce-client'; // PKCE 客户端 ID
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+    // Base64 URL 编码（无填充）
+    function base64URLEncode(buffer) {
+      const bytes = Array.from(new Uint8Array(buffer));
+      const base64 = btoa(String.fromCharCode(...bytes));
+      return base64
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+    }
+
+    // 生成 PKCE 参数
+    async function generatePKCE() {
+      // 1. 生成随机 code_verifier (43-128 字符)
+      const array = new Uint8Array(32);
+      crypto.getRandomValues(array);
+      const codeVerifier = base64URLEncode(array);
+
+      // 2. 计算 code_challenge = SHA256(code_verifier)
+      const encoder = new TextEncoder();
+      const data = encoder.encode(codeVerifier);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      const codeChallenge = base64URLEncode(hash);
+
+      return {
+        codeVerifier,
+        codeChallenge,
+        codeChallengeMethod: 'S256'
+      };
+    }
+
+    // 使用 PKCE 登录
+    async function loginWithPKCE() {
+      try {
+        // 生成 PKCE 参数
+        const pkce = await generatePKCE();
+
+        // 保存 code_verifier 到 sessionStorage
+        sessionStorage.setItem('pkce_code_verifier', pkce.codeVerifier);
+
+        // 构建授权 URL
+        const authUrl = `${SEKAI_PASS_URL}/oauth/authorize?` +
+          `client_id=${CLIENT_ID}&` +
+          `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+          `response_type=code&` +
+          `code_challenge=${pkce.codeChallenge}&` +
+          `code_challenge_method=${pkce.codeChallengeMethod}`;
+
+        // 重定向到授权页面
+        window.location.href = authUrl;
+      } catch (error) {
+        console.error('PKCE generation error:', error);
+        showError('生成 PKCE 参数失败');
+      }
+    }
+
+    // 处理回调
+    async function handleCallback(code) {
+      showLoading();
+
+      try {
+        // 获取保存的 code_verifier
+        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+        if (!codeVerifier) {
+          throw new Error('code_verifier not found');
+        }
+
+        // 清除 code_verifier
+        sessionStorage.removeItem('pkce_code_verifier');
+
+        // 用授权码和 code_verifier 交换令牌
+        const tokenResponse = await fetch(`${SEKAI_PASS_URL}/oauth/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            client_id: CLIENT_ID,
+            code_verifier: codeVerifier,
+            redirect_uri: REDIRECT_URI
+          })
+        });
+
+        if (!tokenResponse.ok) {
+          const error = await tokenResponse.json();
+          throw new Error(error.error_description || error.error || 'Token exchange failed');
+        }
+
+        const { access_token } = await tokenResponse.json();
+
+        // 获取用户信息
+        const userResponse = await fetch(`${SEKAI_PASS_URL}/oauth/userinfo`, {
+          headers: {
+            'Authorization': `Bearer ${access_token}`
+          }
+        });
+
+        if (!userResponse.ok) {
+          throw new Error('Failed to fetch user info');
+        }
+
+        const user = await userResponse.json();
+
+        // 保存到本地存储
+        localStorage.setItem('sekai_user', JSON.stringify(user));
+        localStorage.setItem('sekai_token', access_token);
+
+        // 清理 URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // 显示用户信息
+        showUser(user);
+
+      } catch (error) {
+        console.error('Authentication error:', error);
+        showError('登录失败: ' + error.message);
+      }
+    }
+
+    // 显示用户信息
+    function showUser(user) {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('loading-section').classList.add('hidden');
+      document.getElementById('error-section').classList.add('hidden');
+      document.getElementById('user-section').classList.remove('hidden');
+
+      document.getElementById('username').textContent = user.username;
+      document.getElementById('email').textContent = user.email;
+      document.getElementById('display-name').textContent = user.display_name || '未设置';
+      document.getElementById('user-id').textContent = user.id;
+    }
+
+    // 显示加载状态
+    function showLoading() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('user-section').classList.add('hidden');
+      document.getElementById('error-section').classList.add('hidden');
+      document.getElementById('loading-section').classList.remove('hidden');
+    }
+
+    // 显示错误
+    function showError(message) {
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('loading-section').classList.add('hidden');
+      document.getElementById('user-section').classList.add('hidden');
+      document.getElementById('error-section').classList.remove('hidden');
+      document.getElementById('error-message').textContent = message;
+    }
+
+    // 登出
+    function logout() {
+      localStorage.removeItem('sekai_user');
+      localStorage.removeItem('sekai_token');
+      location.reload();
+    }
+
+    // 页面加载时检查
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const error = urlParams.get('error');
+
+      if (error) {
+        showError('授权失败: ' + error);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (code) {
+        handleCallback(code);
+      } else {
+        // 检查本地存储的用户信息
+        const savedUser = localStorage.getItem('sekai_user');
+        if (savedUser) {
+          showUser(JSON.parse(savedUser));
+        }
+      }
+    });
+
+    // 导出到全局
+    window.SEKAI = {
+      loginWithPKCE,
+      logout,
+      getUser: () => {
+        const savedUser = localStorage.getItem('sekai_user');
+        return savedUser ? JSON.parse(savedUser) : null;
+      }
+    };
+  </script>
+</body>
+</html>

@@ -457,7 +457,7 @@ export function authorizePage(app: any, user: any): string {
       <p style="font-size: 16px; margin-bottom: 8px;"><strong>${app.name}</strong> 请求访问您的信息</p>
       <p style="color: var(--text-muted); font-size: 13px;">当前登录: ${user.username}</p>
     </div>
-    
+
     <div class="user-info" style="border-left: 3px solid #8854d0;">
       <p style="border:none; padding:0; margin:0; justify-content: flex-start;">
         <span style="color: #dcdcdc;">该应用将获取您的公开个人资料。</span>
@@ -467,7 +467,9 @@ export function authorizePage(app: any, user: any): string {
     <form method="POST" action="/oauth/authorize">
       <input type="hidden" name="client_id" value="${app.client_id}">
       <input type="hidden" name="redirect_uri" value="${app.redirect_uri}">
-      
+      ${app.code_challenge ? `<input type="hidden" name="code_challenge" value="${app.code_challenge}">` : ''}
+      ${app.code_challenge_method ? `<input type="hidden" name="code_challenge_method" value="${app.code_challenge_method}">` : ''}
+
       <div class="authorize-actions">
          <button type="submit" name="action" value="deny" class="btn-deny" style="margin-top: 0;">拒绝访问</button>
          <button type="submit" name="action" value="allow" style="margin-top: 0;">允许授权</button>
