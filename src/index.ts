@@ -439,15 +439,4 @@ app.get("/docs", async (c) => {
   return c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
 });
 
-// 404 handler - serve static 404.html
-app.notFound(async (c) => {
-  const url = new URL(c.req.url);
-  url.pathname = "/404.html";
-  const response = await c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
-  return new Response(response.body, {
-    status: 404,
-    headers: response.headers
-  });
-});
-
 export default app;
