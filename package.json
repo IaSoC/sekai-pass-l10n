@@ -14,7 +14,7 @@
   "dependencies": {
     "lucia": "^3.2.0",
     "hono": "^4.0.0",
-    "@lucia-auth/adapter-d1": "^1.0.0"
+    "oslo": "^1.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",

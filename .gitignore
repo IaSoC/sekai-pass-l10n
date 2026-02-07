@@ -1,6 +1,71 @@
+# Dependencies
 node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Wrangler
 .wrangler/
+.mf/
+worker/
+
+# Environment variables
 .dev.vars
+.env
+.env.local
+.env.production
+
+# Build output
 dist/
+build/
+.cache/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database (local development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Cloudflare
+.dev.vars
+wrangler.toml.backup
