@@ -15,6 +15,9 @@ worker/
 .env.local
 .env.production
 
+# Cloudflare configuration (contains sensitive IDs)
+wrangler.toml
+
 # Build output
 dist/
 build/

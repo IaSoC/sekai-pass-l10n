@@ -6,7 +6,6 @@ import * as html from "./lib/html";
 
 type Bindings = {
   DB: D1Database;
-  SESSIONS: KVNamespace;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();

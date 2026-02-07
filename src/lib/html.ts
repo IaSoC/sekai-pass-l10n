@@ -1,5 +1,18 @@
-// 25时、Nightcord见 风格的 HTML 模板
 export const styles = `
+  :root {
+    --primary-color: #8854d0;
+    --primary-gradient: linear-gradient(135deg, #8854d0 0%, #5e35b1 100%);
+    --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --glass-bg: rgba(30, 30, 50, 0.75);
+    --glass-border: rgba(136, 84, 208, 0.2);
+    --text-main: #f0f0f0;
+    --text-muted: #a0a0a0;
+    --input-bg: rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
+    --error-color: #ff6b6b;
+    --success-color: #51cf66;
+  }
+
   * {
     margin: 0;
     padding: 0;
@@ -7,198 +20,293 @@ export const styles = `
   }
 
   body {
-    font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    font-family: 'Inter', 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-gradient);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e4e4e4;
+    color: var(--text-main);
     position: relative;
     overflow: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Animated background elements */
+  body::before, body::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    z-index: 0;
+    animation: float 10s ease-in-out infinite alternate;
   }
 
   body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background:
-      radial-gradient(circle at 20% 50%, rgba(136, 84, 208, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(72, 52, 212, 0.1) 0%, transparent 50%);
-    pointer-events: none;
+    background: radial-gradient(circle, #8854d0, transparent 70%);
+    top: -100px;
+    left: -100px;
+  }
+
+  body::after {
+    background: radial-gradient(circle, #4834d4, transparent 70%);
+    bottom: -100px;
+    right: -100px;
+    animation-delay: -5s;
+  }
+
+  @keyframes float {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 30px); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .container {
-    background: rgba(26, 26, 46, 0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(136, 84, 208, 0.3);
-    border-radius: 16px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
     padding: 48px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    width: 90%;
+    max-width: 440px;
+    box-shadow: var(--shadow-lg);
     position: relative;
     z-index: 1;
+    animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .logo {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 40px;
   }
 
   .logo h1 {
-    font-size: 32px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #8854d0 0%, #4834d4 100%);
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a55eea 0%, #4b7bec 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 8px;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
+    text-shadow: 0 4px 12px rgba(136, 84, 208, 0.3);
   }
 
   .logo p {
     font-size: 14px;
-    color: #a0a0a0;
-    font-weight: 300;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    opacity: 0.8;
+    text-transform: uppercase;
   }
 
   .form-group {
     margin-bottom: 24px;
+    position: relative;
   }
 
   label {
     display: block;
     margin-bottom: 8px;
-    font-size: 14px;
-    color: #b0b0b0;
+    font-size: 13px;
+    color: #c8c8c8;
     font-weight: 500;
+    margin-left: 4px;
   }
 
   input {
     width: 100%;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(136, 84, 208, 0.3);
-    border-radius: 8px;
-    color: #e4e4e4;
+    padding: 16px 18px;
+    background: var(--input-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: var(--text-main);
     font-size: 15px;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
   }
 
   input:focus {
     outline: none;
     border-color: #8854d0;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(136, 84, 208, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 4px rgba(136, 84, 208, 0.15);
+    transform: translateY(-1px);
   }
 
   input::placeholder {
-    color: #606060;
+    color: rgba(255, 255, 255, 0.3);
   }
 
   button {
     width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #8854d0 0%, #4834d4 100%);
+    padding: 16px;
+    background: var(--primary-gradient);
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     color: white;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 8px;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    margin-top: 12px;
+    box-shadow: 0 4px 15px rgba(136, 84, 208, 0.3);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+  }
+
+  button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
   }
 
   button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(136, 84, 208, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(136, 84, 208, 0.5);
+  }
+  
+  button:hover::after {
+    opacity: 1;
   }
 
   button:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
   }
 
   .error {
-    background: rgba(220, 53, 69, 0.15);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-    color: #ff6b6b;
-    padding: 12px 16px;
-    border-radius: 8px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: var(--error-color);
+    padding: 14px 18px;
+    border-radius: 12px;
     margin-bottom: 24px;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(5px);
   }
 
   .success {
-    background: rgba(40, 167, 69, 0.15);
-    border: 1px solid rgba(40, 167, 69, 0.3);
-    color: #51cf66;
-    padding: 12px 16px;
-    border-radius: 8px;
+    background: rgba(81, 207, 102, 0.1);
+    border: 1px solid rgba(81, 207, 102, 0.3);
+    color: var(--success-color);
+    padding: 14px 18px;
+    border-radius: 12px;
     margin-bottom: 24px;
     font-size: 14px;
+    backdrop-filter: blur(5px);
   }
 
   .link {
     text-align: center;
-    margin-top: 24px;
+    margin-top: 32px;
     font-size: 14px;
-    color: #a0a0a0;
+    color: var(--text-muted);
   }
 
   .link a {
-    color: #8854d0;
+    color: #a55eea;
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
   }
 
   .link a:hover {
-    color: #a06ee8;
+    color: #fff;
+    background: rgba(136, 84, 208, 0.2);
   }
 
   .divider {
     height: 1px;
-    background: rgba(136, 84, 208, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     margin: 32px 0;
   }
 
   .user-info {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(136, 84, 208, 0.3);
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
   }
 
   .user-info p {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 10px;
+  }
+  
+  .user-info p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 
   .user-info strong {
-    color: #8854d0;
+    color: #dcdcdc;
+    font-weight: 500;
+  }
+  
+  .user-info span {
+    color: #a0a0a0;
+  }
+
+  .authorize-actions {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .btn-deny {
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    margin-top: 12px; /* aligns with confirm btn */
+  }
+  
+  .btn-deny:hover {
+    box-shadow: 0 8px 25px rgba(255, 71, 87, 0.5);
   }
 `;
 
 export function renderPage(title: string, content: string): string {
   return `<!DOCTYPE html>
-<html lang="ja">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} - SEKAI Pass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>${styles}</style>
 </head>
 <body>
   <div class="container">
     <div class="logo">
       <h1>SEKAI Pass</h1>
-      <p>25時、Nightcordで。</p>
     </div>
     ${content}
   </div>
@@ -207,77 +315,88 @@ export function renderPage(title: string, content: string): string {
 }
 
 export function loginForm(error?: string): string {
-  return renderPage("ログイン", `
-    ${error ? `<div class="error">${error}</div>` : ""}
+  return renderPage("登录", `
+    ${error ? `<div class="error">⚠️ ${error}</div>` : ""}
     <form method="POST" action="/login">
       <div class="form-group">
-        <label for="username">ユーザー名</label>
-        <input type="text" id="username" name="username" required placeholder="ユーザー名を入力">
+        <label for="username">用户名</label>
+        <input type="text" id="username" name="username" required placeholder="请输入用户名" autocomplete="username">
       </div>
       <div class="form-group">
-        <label for="password">パスワード</label>
-        <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" required placeholder="请输入密码" autocomplete="current-password">
       </div>
-      <button type="submit">ログイン</button>
+      <button type="submit">登录</button>
     </form>
     <div class="link">
-      <p>アカウントをお持ちでない方は <a href="/register">新規登録</a></p>
+      <p>还没有账号？ <a href="/register">立即注册</a></p>
     </div>
   `);
 }
 
 export function registerForm(error?: string): string {
-  return renderPage("新規登録", `
-    ${error ? `<div class="error">${error}</div>` : ""}
+  return renderPage("注册", `
+    ${error ? `<div class="error">⚠️ ${error}</div>` : ""}
     <form method="POST" action="/register">
       <div class="form-group">
-        <label for="username">ユーザー名</label>
-        <input type="text" id="username" name="username" required placeholder="ユーザー名を入力">
+        <label for="username">用户名</label>
+        <input type="text" id="username" name="username" required placeholder="设置用户名" autocomplete="username">
       </div>
       <div class="form-group">
-        <label for="email">メールアドレス</label>
-        <input type="email" id="email" name="email" required placeholder="メールアドレスを入力">
+        <label for="email">电子邮箱</label>
+        <input type="email" id="email" name="email" required placeholder="yourname@example.com" autocomplete="email">
       </div>
       <div class="form-group">
-        <label for="password">パスワード</label>
-        <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" required placeholder="设置密码" autocomplete="new-password">
       </div>
       <div class="form-group">
-        <label for="display_name">表示名（任意）</label>
-        <input type="text" id="display_name" name="display_name" placeholder="表示名を入力">
+        <label for="display_name">昵称（可选）</label>
+        <input type="text" id="display_name" name="display_name" placeholder="你想被如何称呼？">
       </div>
-      <button type="submit">登録</button>
+      <button type="submit">完成注册</button>
     </form>
     <div class="link">
-      <p>既にアカウントをお持ちの方は <a href="/login">ログイン</a></p>
+      <p>已有账号？ <a href="/login">直接登录</a></p>
     </div>
   `);
 }
 
 export function dashboardPage(user: any): string {
-  return renderPage("ダッシュボード", `
+  return renderPage("仪表盘", `
     <div class="user-info">
-      <p><strong>ユーザー名:</strong> ${user.username}</p>
-      <p><strong>メール:</strong> ${user.email}</p>
-      ${user.displayName ? `<p><strong>表示名:</strong> ${user.displayName}</p>` : ""}
+      <p><strong>用户名</strong> <span>${user.username}</span></p>
+      <p><strong>邮箱</strong> <span>${user.email}</span></p>
+      ${user.displayName ? `<p><strong>昵称</strong> <span>${user.displayName}</span></p>` : ""}
     </div>
     <form method="POST" action="/logout">
-      <button type="submit">ログアウト</button>
+      <button type="submit" style="background: linear-gradient(135deg, #718093 0%, #2f3640 100%); width: auto; min-width: 120px; float: right;">退出登录</button>
+      <div style="clear: both;"></div>
     </form>
   `);
 }
 
 export function authorizePage(app: any, user: any): string {
-  return renderPage("認証", `
-    <div class="user-info">
-      <p><strong>${app.name}</strong> がアクセスを要求しています</p>
-      <p style="margin-top: 12px; color: #a0a0a0;">ログイン中: ${user.username}</p>
+  return renderPage("授权访问", `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <p style="font-size: 16px; margin-bottom: 8px;"><strong>${app.name}</strong> 请求访问您的信息</p>
+      <p style="color: var(--text-muted); font-size: 13px;">当前登录: ${user.username}</p>
     </div>
+    
+    <div class="user-info" style="border-left: 3px solid #8854d0;">
+      <p style="border:none; padding:0; margin:0; justify-content: flex-start;">
+        <span style="color: #dcdcdc;">该应用将获取您的公开个人资料。</span>
+      </p>
+    </div>
+
     <form method="POST" action="/oauth/authorize">
       <input type="hidden" name="client_id" value="${app.client_id}">
       <input type="hidden" name="redirect_uri" value="${app.redirect_uri}">
-      <button type="submit" name="action" value="allow">許可</button>
-      <button type="submit" name="action" value="deny" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); margin-top: 12px;">拒否</button>
+      
+      <div class="authorize-actions">
+         <button type="submit" name="action" value="deny" class="btn-deny" style="margin-top: 0;">拒绝访问</button>
+         <button type="submit" name="action" value="allow" style="margin-top: 0;">允许授权</button>
+      </div>
     </form>
   `);
 }
