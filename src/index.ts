@@ -281,19 +281,7 @@ app.get("*", async (c) => {
   // Serve index.html for all other routes (SPA)
   const url = new URL(c.req.url);
   url.pathname = "/index.html";
-  const response = await c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
-
-  // Inject TURNSTILE_SITE_KEY into HTML
-  if (response.ok && response.headers.get("content-type")?.includes("text/html")) {
-    let html = await response.text();
-    html = html.replace(
-      '</head>',
-      `<script>window.TURNSTILE_SITE_KEY = '${c.env.TURNSTILE_SITE_KEY}';</script></head>`
-    );
-    return c.html(html);
-  }
-
-  return response;
+  return c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
 });
 
 export default app;

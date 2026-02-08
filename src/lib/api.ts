@@ -8,6 +8,7 @@ import { verifyTurnstile } from "./turnstile";
 type Bindings = {
   DB: D1Database;
   TURNSTILE_SECRET_KEY: string;
+  TURNSTILE_SITE_KEY: string;
 };
 
 type Variables = {
@@ -16,6 +17,13 @@ type Variables = {
 };
 
 export const apiRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+// Public configuration endpoint
+apiRouter.get("/config", async (c) => {
+  return c.json({
+    turnstile_site_key: c.env.TURNSTILE_SITE_KEY || ''
+  });
+});
 
 // Middleware to validate session from Bearer token
 apiRouter.use("*", async (c, next) => {

@@ -7,6 +7,24 @@ import { renderAuthorize } from './pages/authorize.js';
 const api = new APIClient('/api');
 const app = document.getElementById('app');
 
+// Load token from localStorage on startup
+const token = localStorage.getItem('token');
+if (token) {
+  api.setAuthToken(token);
+}
+
+// Load configuration from API
+async function loadConfig() {
+  try {
+    const config = await api.get('/config');
+    window.TURNSTILE_SITE_KEY = config.turnstile_site_key;
+  } catch (error) {
+    console.error('Failed to load config:', error);
+    // Use default test key if config fails to load
+    window.TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
+  }
+}
+
 // Simple router
 const routes = {
   '/': renderDashboard,
@@ -46,8 +64,10 @@ function render() {
 // Handle browser back/forward
 window.addEventListener('popstate', render);
 
-// Initial render
-render();
+// Load config and initial render
+loadConfig().then(() => {
+  render();
+});
 
 // Export for global access
 window.navigate = navigate;

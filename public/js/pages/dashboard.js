@@ -54,6 +54,7 @@ export async function renderDashboard(app, api, navigate) {
       // Ignore errors on logout
     } finally {
       localStorage.removeItem('token');
+      api.setAuthToken(null);
       navigate('/login');
     }
   });
