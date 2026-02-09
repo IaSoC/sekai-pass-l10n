@@ -289,14 +289,19 @@ apiRouter.post("/oauth/authorize", async (c) => {
 
     const code = generateId(32);
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const createdAt = Date.now();
 
     await c.env.DB.prepare(
-      "INSERT INTO auth_codes (code, user_id, client_id, redirect_uri, expires_at, code_challenge, code_challenge_method, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-    ).bind(code, user.id, client_id, redirect_uri, expiresAt, code_challenge, code_challenge_method || 'S256', state || null).run();
+      "INSERT INTO auth_codes (code, user_id, client_id, redirect_uri, expires_at, created_at, code_challenge, code_challenge_method, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(code, user.id, client_id, redirect_uri, expiresAt, createdAt, code_challenge, code_challenge_method || 'S256', state || null).run();
+
+    // OAuth 2.1: Include issuer parameter to prevent mix-up attacks
+    const issuer = new URL(c.req.url).origin;
 
     return c.json({
       success: true,
       code,
+      iss: issuer,
       state: state || undefined
     });
   } catch (error) {
