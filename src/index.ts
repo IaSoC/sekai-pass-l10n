@@ -11,6 +11,7 @@ import { isOIDCRequest } from "./lib/oidc-scope";
 import { generateIDToken } from "./lib/id-token";
 import { generateOIDCMetadata } from "./lib/oidc-discovery";
 import { getPublicKeys, checkAndRotateKeys } from "./lib/keys";
+import { authenticateClient } from "./lib/client-auth";
 import * as html from "./lib/html";
 import { apiRouter } from "./lib/api";
 
@@ -143,7 +144,8 @@ app.get("/.well-known/oauth-authorization-server", async (c) => {
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     code_challenge_methods_supported: ["S256"],
-    token_endpoint_auth_methods_supported: ["none"],
+    token_endpoint_auth_methods_supported: ["none", "private_key_jwt"],
+    token_endpoint_auth_signing_alg_values_supported: ["ES256", "RS256"],
     revocation_endpoint_auth_methods_supported: ["none"],
     scopes_supported: Object.values(SCOPES),
     service_documentation: `${baseUrl}/docs`,
@@ -335,13 +337,24 @@ app.post("/oauth/token", async (c) => {
 
   const formData = await c.req.formData();
   const grantType = formData.get("grant_type")?.toString();
-  const clientId = formData.get("client_id")?.toString();
 
-  if (!clientId) {
-    return c.json({ error: "invalid_request", error_description: "client_id is required" }, 400);
+  // Authenticate client (supports both public and confidential clients)
+  const tokenEndpointUrl = new URL(c.req.url).origin + "/oauth/token";
+  const authResult = await authenticateClient(c.env.DB, formData, tokenEndpointUrl);
+
+  if (!authResult.authenticated) {
+    return c.json(
+      {
+        error: authResult.error || "invalid_client",
+        error_description: authResult.errorDescription
+      },
+      401
+    );
   }
 
-  // Verify client exists
+  const clientId = authResult.clientId!;
+
+  // Get full application record
   const app = await c.env.DB.prepare(
     "SELECT * FROM applications WHERE client_id = ?"
   ).bind(clientId).first();
