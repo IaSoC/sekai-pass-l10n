@@ -82,7 +82,7 @@ Code verifier 与 challenge 不匹配：
   "issuer": "https://id.nightcord.de5.net",
   "authorization_endpoint": "https://id.nightcord.de5.net/oauth/authorize",
   "token_endpoint": "https://id.nightcord.de5.net/oauth/token",
-  "code_challenge_methods_supported": ["S256", "plain"],
+  "code_challenge_methods_supported": ["S256"],
   "token_endpoint_auth_methods_supported": ["none"]
 }
 ```
@@ -252,23 +252,17 @@ curl -X POST https://id.nightcord.de5.net/oauth/token \
 
 ## Code Challenge 方法
 
-### S256（推荐）
+### S256（强制）
 - 使用 SHA-256 哈希
 - 更安全
 - **根据 OAuth 2.1 必须实现**
+- **SEKAI Pass 仅支持此方法**
 
 ```javascript
 code_challenge = BASE64URL(SHA256(code_verifier))
 ```
 
-### Plain（不推荐）
-- 无哈希，直接比较
-- 仅用于旧版兼容性
-- 不应在生产环境中使用
-
-```javascript
-code_challenge = code_verifier
-```
+**注意：** SEKAI Pass 已禁用 `plain` 方法以符合 OAuth 2.1 最佳实践。所有客户端必须使用 S256 方法。
 
 ## 库支持
 

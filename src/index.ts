@@ -142,7 +142,7 @@ app.get("/.well-known/oauth-authorization-server", async (c) => {
     revocation_endpoint: `${baseUrl}/oauth/revoke`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "refresh_token"],
-    code_challenge_methods_supported: ["S256", "plain"],
+    code_challenge_methods_supported: ["S256"],
     token_endpoint_auth_methods_supported: ["none"],
     revocation_endpoint_auth_methods_supported: ["none"],
     scopes_supported: Object.values(SCOPES),
@@ -199,6 +199,11 @@ app.get("/oauth/authorize", async (c) => {
   // OAuth 2.1: PKCE is mandatory for all clients
   if (!codeChallenge) {
     return c.text("code_challenge is required (PKCE mandatory)", 400);
+  }
+
+  // OAuth 2.1: Only S256 method is allowed
+  if (codeChallengeMethod !== "S256") {
+    return c.text("Only S256 code_challenge_method is supported", 400);
   }
 
   if (!validateCodeChallenge(codeChallenge, codeChallengeMethod)) {

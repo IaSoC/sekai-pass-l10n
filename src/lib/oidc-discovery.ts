@@ -69,8 +69,8 @@ export function generateOIDCMetadata(baseUrl: string): OIDCMetadata {
       "amr"
     ],
 
-    // PKCE
-    code_challenge_methods_supported: ["S256", "plain"],
+    // PKCE - OAuth 2.1: Only S256 method is supported
+    code_challenge_methods_supported: ["S256"],
 
     // Optional metadata
     service_documentation: `${baseUrl}/docs`,
