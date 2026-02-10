@@ -10,6 +10,8 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/bili-47177171806/sekai-pass?style=flat-square&color=884499)
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/bili-47177171806/sekai-pass?style=flat-square&color=884499)](https://www.codefactor.io/repository/github/bili-47177171806/sekai-pass)
 
+[English](./README.en.md) | 简体中文
+
 </div>
 
 现代化的 SSO (Single Sign-On) 单点登录系统

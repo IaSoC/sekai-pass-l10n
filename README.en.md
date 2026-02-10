@@ -1,14 +1,28 @@
 # SEKAI Pass - A SSO (Single Sign-On) implication
 
+<div align="center">
+
+![GitHub License](https://img.shields.io/github/license/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub stars](https://img.shields.io/github/stars/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub forks](https://img.shields.io/github/forks/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub issues](https://img.shields.io/github/issues/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub last commit](https://img.shields.io/github/last-commit/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub repo size](https://img.shields.io/github/repo-size/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/bili-47177171806/sekai-pass?style=flat-square&color=884499)](https://www.codefactor.io/repository/github/bili-47177171806/sekai-pass)
+
+English | [简体中文](./README.md)
+
+</div>
+
 A modern and secure authentication system using Cloudflare Workers and Lucia Auth.
 
 
 ## ✨ Features
 
-- 🔐 Secure Authentication by Lucia Auth (Scrypt Password Hash)
+- 🔐 Secure Authentication by Lucia Auth (PBKDF2 Password Hash, 100,000 iterations)
 - ⚡ Can be deployed at Cloudflare Workers
 - 🗄️ persistent data storage using Cloudflare D1 database
-- 🔄 Support OAuth 2.0 Authorization Code flow with PCKE enforcement
+- 🔄 Support OAuth 2.1 Authorization Code flow with PKCE enforcement
 - 🎯 Fast frontend response by Hono Web Framework
 - 🚀 Full-stack seperation - RESTful API + SPA
 - 📱 Standard OAuth 2.0 + Modern API callback avaliable
@@ -120,7 +134,7 @@ GET https://id.nightcord.de5.net/oauth/authorize?client_id=CLIENT_ID&redirect_ur
 **Parameters**:
 
 - `code_challenge`: PKCE challenge value, derived from the code_verifier using SHA-256 and Base64URL encoding.
-- `code_challenge_method`: `S256`(Recommend) or `plain`
+- `code_challenge_method`: Must be `S256`
 - `state`: Random string to against CSRF attack.(Recommend)
 
 **WARNING**: It's an **enforcement** to PKCE's existance in OAuth 2.1. Request without `code_challenge` will be refused.
@@ -379,7 +393,7 @@ CREATE TABLE refresh_tokens (
 
 ## 🔒 Security
 
-- ✅ Hashed password with PBPDF2 algorithm
+- ✅ Hashed password with PBKDF2 algorithm (100,000 iterations, SHA-256)
 - ✅ 30-day session managed by Lucia Auth
 - ✅ HTTPS enforcement in production deployment
 - ✅ Secrue Cookie（SameSite=Lax）
