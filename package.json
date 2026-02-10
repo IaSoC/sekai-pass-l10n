@@ -1,7 +1,7 @@
 {
   "name": "sekai-pass",
   "version": "1.0.0",
-  "description": "SEKAI Pass - Modern SSO Single Sign-On System",
+  "description": "SEKAI Pass - Modern SSO Single Sign-On System built with Cloudflare Workers, supporting OAuth 2.1 and OpenID Connect",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
@@ -9,9 +9,37 @@
     "build": "wrangler deploy --dry-run",
     "sync-docs": "node scripts/sync-docs.js"
   },
-  "keywords": ["sso", "cloudflare-workers", "lucia-auth"],
-  "author": "",
+  "keywords": [
+    "sso",
+    "single-sign-on",
+    "oauth2",
+    "oauth2.1",
+    "oidc",
+    "openid-connect",
+    "cloudflare-workers",
+    "cloudflare",
+    "lucia-auth",
+    "authentication",
+    "authorization",
+    "pkce",
+    "jwt",
+    "d1-database",
+    "hono",
+    "edge-computing"
+  ],
+  "author": "bili_47177171806",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bili-47177171806/sekai-pass.git"
+  },
+  "homepage": "https://github.com/bili-47177171806/sekai-pass#readme",
+  "bugs": {
+    "url": "https://github.com/bili-47177171806/sekai-pass/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "lucia": "^3.2.0",
     "hono": "^4.0.0"

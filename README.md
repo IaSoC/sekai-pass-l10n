@@ -1,5 +1,17 @@
 # SEKAI Pass
 
+<div align="center">
+
+![GitHub License](https://img.shields.io/github/license/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub stars](https://img.shields.io/github/stars/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub forks](https://img.shields.io/github/forks/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub issues](https://img.shields.io/github/issues/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub last commit](https://img.shields.io/github/last-commit/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+![GitHub repo size](https://img.shields.io/github/repo-size/bili-47177171806/sekai-pass?style=flat-square&color=884499)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/bili-47177171806/sekai-pass?style=flat-square&color=884499)](https://www.codefactor.io/repository/github/bili-47177171806/sekai-pass)
+
+</div>
+
 现代化的 SSO (Single Sign-On) 单点登录系统
 
 使用 Cloudflare Workers 和 Lucia Auth 构建的安全认证系统。
@@ -124,8 +136,8 @@ GET https://id.nightcord.de5.net/oauth/authorize?client_id=CLIENT_ID&redirect_ur
 
 **必需参数**:
 - `code_challenge`: PKCE 挑战码（code_verifier 的 SHA256 哈希的 Base64URL 编码）
-- `code_challenge_method`: `S256`（推荐）或 `plain`
-- `state`: 防止 CSRF 的随机字符串（推荐）
+- `code_challenge_method`: 必须为 `S256`
+- `state`: 防止 CSRF 的随机字符串（强烈推荐）
 
 **注意**: OAuth 2.1 **强制要求** PKCE。缺少 `code_challenge` 参数的请求将被拒绝。
 
@@ -211,7 +223,7 @@ GET https://id.nightcord.de5.net/oauth/authorize?client_id=CLIENT_ID&redirect_ur
 
 **OIDC 特定参数**:
 - `scope`: 必须包含 `openid`
-- `nonce`: 防重放攻击的随机值（推荐）
+- `nonce`: 防重放攻击的随机值（强烈推荐）
 
 #### 2. 获取令牌（包含 ID Token）
 
@@ -446,20 +458,45 @@ npx wrangler tail
 
 ## 🚀 生产环境部署
 
-1. 确认 `wrangler.toml` 配置
-2. 在生产环境创建数据库
-3. 应用架构
-4. 设置加密密钥
-5. 部署
+### 部署前检查清单
+
+1. ✅ 确认 `wrangler.toml` 配置正确
+2. ✅ 在生产环境创建 D1 数据库
+3. ✅ 应用数据库架构（schema.sql）
+4. ✅ 创建 KV 命名空间用于 OIDC 密钥存储
+5. ✅ 设置加密密钥（KEY_ENCRYPTION_SECRET）
+6. ✅ 配置 Turnstile（可选，用于防机器人）
+
+### 部署命令
 
 ```bash
 npm run deploy
 ```
 
+### 部署后验证
+
+1. 访问 `/.well-known/openid-configuration` 确认 OIDC Discovery 正常
+2. 测试用户注册和登录功能
+3. 测试 OAuth 2.1 授权流程
+4. 检查 Cloudflare Workers 日志确认无错误
+
 ## 📄 许可证
 
-MIT
+MIT License
+
+详见 [LICENSE](LICENSE) 文件。
 
 ## 🤝 贡献
 
-欢迎提交 Pull Request！
+欢迎提交 Pull Request！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献指南。
+
+## 📞 联系方式
+
+- GitHub Issues: [提交问题](https://github.com/bili-47177171806/sekai-pass/issues)
+- 哔哩哔哩: [@bili_47177171806](https://space.bilibili.com/3546904856103196)
+
+## ⭐ Star History
+
+如果这个项目对你有帮助，请给我们一个 Star！
+
+[![Star History Chart](https://api.star-history.com/svg?repos=bili-47177171806/sekai-pass&type=Date)](https://star-history.com/#bili-47177171806/sekai-pass&Date)
