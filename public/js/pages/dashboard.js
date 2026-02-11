@@ -21,6 +21,10 @@ export async function renderDashboard(app, api, navigate) {
       <button id="logout-btn" style="background: linear-gradient(135deg, #718093 0%, #2f3640 100%); width: auto; min-width: 120px; float: right;">退出登录</button>
       <div style="clear: both;"></div>
     </div>
+    <footer class="site-footer">
+      <a href="https://docs.nightcord.de5.net/legal/complete/privacy-sekai-pass" target="_blank">隐私政策</a> |
+      <a href="https://docs.nightcord.de5.net/legal/complete/terms-sekai-pass" target="_blank">用户服务协议</a>
+    </footer>
   `;
 
   try {

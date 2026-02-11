@@ -27,6 +27,10 @@ export function renderLogin(app, api, navigate) {
         <p>还没有账号？ <a href="/register" data-link>立即注册</a></p>
       </div>
     </div>
+    <footer class="site-footer">
+      <a href="https://docs.nightcord.de5.net/legal/complete/privacy-sekai-pass" target="_blank">隐私政策</a> |
+      <a href="https://docs.nightcord.de5.net/legal/complete/terms-sekai-pass" target="_blank">用户服务协议</a>
+    </footer>
   `;
 
   // Load Turnstile script

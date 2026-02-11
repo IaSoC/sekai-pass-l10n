@@ -28,6 +28,10 @@ export async function renderAuthorize(app, api, navigate) {
         <p style="text-align: center;">加载中...</p>
       </div>
     </div>
+    <footer class="site-footer">
+      <a href="https://docs.nightcord.de5.net/legal/complete/privacy-sekai-pass" target="_blank">隐私政策</a> |
+      <a href="https://docs.nightcord.de5.net/legal/complete/terms-sekai-pass" target="_blank">用户服务协议</a>
+    </footer>
   `;
 
   try {

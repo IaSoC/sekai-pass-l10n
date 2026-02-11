@@ -26,6 +26,15 @@ export function renderRegister(app, api, navigate) {
           <label for="display_name">昵称（可选）</label>
           <input type="text" id="display_name" name="display_name" placeholder="你想被如何称呼？">
         </div>
+        
+        <label class="terms-agreement">
+          <input type="checkbox" name="agree_terms" required>
+          我已阅读并同意
+          <a href="https://docs.nightcord.de5.net/legal/complete/privacy-sekai-pass" target="_blank">隐私政策</a>
+          和
+          <a href="https://docs.nightcord.de5.net/legal/complete/terms-sekai-pass" target="_blank">用户服务协议</a>
+        </label>
+
         <div class="form-group" style="display: flex; justify-content: center;">
           <div class="cf-turnstile" data-sitekey="${turnstileSiteKey}" data-theme="dark"></div>
         </div>
@@ -35,6 +44,10 @@ export function renderRegister(app, api, navigate) {
         <p>已有账号？ <a href="/login" data-link>直接登录</a></p>
       </div>
     </div>
+    <footer class="site-footer">
+      <a href="https://docs.nightcord.de5.net/legal/complete/privacy-sekai-pass" target="_blank">隐私政策</a> |
+      <a href="https://docs.nightcord.de5.net/legal/complete/terms-sekai-pass" target="_blank">用户服务协议</a>
+    </footer>
   `;
 
   // Load Turnstile script
