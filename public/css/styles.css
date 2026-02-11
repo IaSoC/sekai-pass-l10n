@@ -207,7 +207,7 @@ button:disabled {
 .app-icon {
   width: 64px;
   height: 64px;
-  background: --border-color;
+  background: var(--border-color);
   border-radius: 12px;
   display: flex;
   align-items: center;
