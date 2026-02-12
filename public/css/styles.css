@@ -87,8 +87,7 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 42px;
-  width: 90%;
-  max-width: 420px;
+  width: min(90vw, 350px);
   box-shadow: 0 20px 60px var(--card-shadow);
   position: relative;
   overflow: hidden;
@@ -825,7 +824,6 @@ input[type="url"]:valid:not(:placeholder-shown) {
 @media (max-width: 768px) {
   .container {
     padding: 24px;
-    width: 95%;
   }
 
   .connection-visual {
