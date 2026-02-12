@@ -3,6 +3,7 @@ import { renderLogin } from './pages/login.js';
 import { renderRegister } from './pages/register.js';
 import { renderDashboard } from './pages/dashboard.js';
 import { renderAuthorize } from './pages/authorize.js';
+import { renderSettings } from './pages/settings.js';
 
 const api = new APIClient('/api');
 const app = document.getElementById('app');
@@ -30,6 +31,7 @@ const routes = {
   '/': renderDashboard,
   '/login': renderLogin,
   '/register': renderRegister,
+  '/settings': renderSettings,
   '/oauth/authorize': renderAuthorize,
 };
 

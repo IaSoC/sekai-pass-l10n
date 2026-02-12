@@ -229,6 +229,84 @@ apiRouter.get("/auth/me", async (c) => {
   });
 });
 
+// Update user profile
+apiRouter.put("/auth/profile", async (c) => {
+  const user = c.get("user");
+
+  if (!user) {
+    return c.json({ error: "未授权" }, 401);
+  }
+
+  try {
+    const body = await c.req.json();
+    const { display_name, avatar_url } = body;
+
+    // Validate fields
+    if (display_name !== undefined && display_name !== null) {
+      if (typeof display_name !== 'string' || display_name.length > 50) {
+        return c.json({ error: "昵称长度不能超过 50 个字符" }, 400);
+      }
+    }
+
+    if (avatar_url !== undefined && avatar_url !== null) {
+      if (typeof avatar_url !== 'string' || avatar_url.length > 500) {
+        return c.json({ error: "头像 URL 长度不能超过 500 个字符" }, 400);
+      }
+      // Basic URL validation
+      try {
+        new URL(avatar_url);
+      } catch {
+        return c.json({ error: "头像 URL 格式无效" }, 400);
+      }
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (display_name !== undefined) {
+      updates.push('display_name = ?');
+      params.push(display_name);
+    }
+    if (avatar_url !== undefined) {
+      updates.push('avatar_url = ?');
+      params.push(avatar_url);
+    }
+
+    if (updates.length === 0) {
+      return c.json({ error: "没有需要更新的字段" }, 400);
+    }
+
+    updates.push('updated_at = ?');
+    params.push(Date.now());
+    params.push(user.id);
+
+    await c.env.DB.prepare(`
+      UPDATE users
+      SET ${updates.join(', ')}
+      WHERE id = ?
+    `).bind(...params).run();
+
+    // Get updated user info
+    const updatedUser = await c.env.DB.prepare(
+      "SELECT id, username, email, display_name, avatar_url FROM users WHERE id = ?"
+    ).bind(user.id).first();
+
+    return c.json({
+      success: true,
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        display_name: updatedUser.display_name,
+        avatar_url: updatedUser.avatar_url
+      }
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return c.json({ error: "更新资料失败，请重试" }, 500);
+  }
+});
+
 // Logout endpoint
 apiRouter.post("/auth/logout", async (c) => {
   const session = c.get("session");
